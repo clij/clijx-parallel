@@ -2,33 +2,35 @@ package net.haesleinhuepf.clijx.faclonheavy;
 
 import net.haesleinhuepf.clij.CLIJ;
 import net.haesleinhuepf.clijx.CLIJx;
-import org.jocl.CL;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * The CLIJxPool holds instances of CLIJx allowing to execute operations on multiple OpenCL devices / GPUs at a time.
  */
 public class CLIJxPool {
-    CLIJx[] pool;
-    boolean[] idle;
+
+    final ArrayBlockingQueue<CLIJx> pool;
+    final int size;
+    final CLIJx[] allInstances; // For logging only
 
     public CLIJxPool(int[] device_indices, int[] number_of_instances_per_clij) {
         int sum = 0;
         for (int v : number_of_instances_per_clij) {
             sum = sum + v;
         }
-        pool = new CLIJx[sum];
-        idle = new boolean[pool.length];
+        size = sum;
+        pool = new ArrayBlockingQueue<>(size, true);
+        allInstances = new CLIJx[size];
 
         int count = 0;
         for (int i = 0; i < device_indices.length; i++) {
             for (int j = 0; j < number_of_instances_per_clij[i]; j++) {
-                pool[count] = new CLIJx(new CLIJ(device_indices[i]));
-                idle[count] = true;
-                count ++;
+                CLIJx clijx = new CLIJx(new CLIJ(device_indices[i]));
+                pool.add(clijx);
+                allInstances[count] = clijx;
+                count++;
             }
         }
     }
@@ -76,13 +78,13 @@ public class CLIJxPool {
     }
 
     public int size() {
-        return pool.length;
+        return size;
     }
 
     public String log() {
         StringBuilder text = new StringBuilder();
-        for (int i = 0; i < pool.length; i ++ ) {
-            text.append(" * " + pool[i].getGPUName() + "[" + pool[i] + "]" + "\n");
+        for (int i = 0; i < size; i ++ ) {
+            text.append(" * " + allInstances[i].getGPUName() + "[" + allInstances[i] + "]" + "\n");
         }
         return text.toString();
     }
@@ -91,23 +93,12 @@ public class CLIJxPool {
      * Select a CLIJx instance that's idle at the moment, mark it as busy and return it.
      * @return a clijx instance
      */
-    public synchronized CLIJx getIdleCLIJx() {
-        while (true) {
-            for (int i = 0; i < idle.length; i++) {
-                if (idle[i]) {
-                    idle[i] = false;
-                    return pool[i];
-                }
-            }
-
-            // if none is idle, wait a bit and continue checking again.
-            // Todo: This is a potential endless loop. Fix this.
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                return null;
-            }
+    public CLIJx getIdleCLIJx() {
+        // Catch the exception inside to avoid breaking change. Is it a good idea ?
+        try {
+            return pool.take();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -116,13 +107,13 @@ public class CLIJxPool {
      * 
      * @param clijx
      */
-    public void setCLIJxIdle(CLIJx clijx) {
+    public void setCLIJxIdle(CLIJx clijx, boolean clear) {
         // clean up that instance before another thread can use it.
-        clijx.clear();
-        for (int i = 0; i < idle.length; i++) {
-            if (pool[i] == clijx) {
-                idle[i] = true;
-            }
-        }
+        if (clear) clijx.clear();
+        pool.add(clijx);
+    }
+
+    public void setCLIJxIdle(CLIJx clijx) {
+        setCLIJxIdle(clijx, true);
     }
 }
