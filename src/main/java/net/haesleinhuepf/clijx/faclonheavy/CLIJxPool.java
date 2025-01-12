@@ -4,6 +4,7 @@ import net.haesleinhuepf.clij.CLIJ;
 import net.haesleinhuepf.clijx.CLIJx;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -36,8 +37,8 @@ public class CLIJxPool {
     }
 
     public static CLIJxPool fromDeviceNames(String[] device_names, int[] number_of_instances_per_clij) {
-        ArrayList<Integer> index_list = new ArrayList();
-        ArrayList<Integer> instance_count_list = new ArrayList();
+        List<Integer> index_list = new ArrayList<>();
+        List<Integer> instance_count_list = new ArrayList<>();
 
         int index = 0;
         for (String name : CLIJ.getAvailableDeviceNames()) {
@@ -65,15 +66,8 @@ public class CLIJxPool {
 
     public static CLIJxPool fullPool() {
         return CLIJxPool.fromDeviceNames(
-                new String[]{"UHD", "gfx9", "mx", "1070", "2060", "2070", "2080"},
-                new int[]   {     1,     1,     1,     1,      2,      2,      4}
-        );
-    }
-
-    public static CLIJxPool powerPool() {
-        return CLIJxPool.fromDeviceNames(
-                new String[]{"1070", "2060", "2070", "2080"},
-                new int[]   {     1,      2,      2,      4}
+                new String[]{"Iris", "UHD", "gfx9", "mx", "1070", "2060", "2070", "2080"},
+                new int[]   {     1,     1,     1,     1,     1,      2,      2,      4}
         );
     }
 
@@ -84,7 +78,7 @@ public class CLIJxPool {
     public String log() {
         StringBuilder text = new StringBuilder();
         for (int i = 0; i < size; i ++ ) {
-            text.append(" * " + allInstances[i].getGPUName() + "[" + allInstances[i] + "]" + "\n");
+            text.append(" * ").append(allInstances[i].getGPUName()).append("[").append(allInstances[i]).append("]").append("\n");
         }
         return text.toString();
     }

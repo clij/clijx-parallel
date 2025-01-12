@@ -47,7 +47,7 @@ public void accept(ClearCLBuffer input, ClearCLBuffer output) {
 }
 ```
 
-Last but not least, you need to onfigure tile-size and margin for overlapping tiles:
+Last but not least, you need to configure tile-size and margin for overlapping tiles:
 ```
 int margin = 20;
 int tile_size = 256;

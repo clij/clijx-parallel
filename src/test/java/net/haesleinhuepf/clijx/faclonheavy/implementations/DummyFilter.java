@@ -4,7 +4,6 @@ import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
 import net.haesleinhuepf.clijx.faclonheavy.AbstractTileProcessor;
 
 import java.util.Arrays;
-import java.util.function.BiConsumer;
 
 /**
  * An example implementation of an image processing workflow that can be executed on tiles of images.
