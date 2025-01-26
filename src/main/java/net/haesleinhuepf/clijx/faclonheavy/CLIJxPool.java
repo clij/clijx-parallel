@@ -4,7 +4,12 @@ import net.haesleinhuepf.clij.CLIJ;
 import net.haesleinhuepf.clijx.CLIJx;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -12,83 +17,161 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public class CLIJxPool {
 
-    final ArrayBlockingQueue<CLIJx> pool;
-    final int size;
-    final CLIJx[] allInstances; // For logging only
+    final private ArrayBlockingQueue<CLIJx> pool;
+    final private List<CLIJx> allInstances = new ArrayList<>(); // For logging only
+
+    public static final Map<String, Integer> GPU_TO_INSTANCES = new HashMap<>();
+
+    private final static Set<String> EXCLUDED_GPU = new HashSet<>();
+
+    static {
+        // "Iris", "UHD", "gfx9", "mx", "1070", "2060", "2070", "2080"
+        GPU_TO_INSTANCES.put("Iris", 1); // Intel(R) Iris(R) Xe Graphics
+        GPU_TO_INSTANCES.put("UHD", 1);
+        GPU_TO_INSTANCES.put("gfx9", 1);
+        GPU_TO_INSTANCES.put("mx", 1);
+
+        GPU_TO_INSTANCES.put("A500 Laptop", 1); // NVIDIA RTX A500 Laptop GPU
+
+        GPU_TO_INSTANCES.put("1060", 1);
+        GPU_TO_INSTANCES.put("1070", 1);
+        GPU_TO_INSTANCES.put("1080", 1);
+
+        GPU_TO_INSTANCES.put("2060", 2);
+        GPU_TO_INSTANCES.put("2070", 2);
+        GPU_TO_INSTANCES.put("2080", 4);
+
+        GPU_TO_INSTANCES.put("3060", 2);
+        GPU_TO_INSTANCES.put("3070", 2);
+        GPU_TO_INSTANCES.put("3080", 4);
+
+        GPU_TO_INSTANCES.put("4060", 4);
+        GPU_TO_INSTANCES.put("4070", 4);
+        GPU_TO_INSTANCES.put("4080", 8);
+        GPU_TO_INSTANCES.put("4090", 8);
+
+        GPU_TO_INSTANCES.put("5070", 4);
+        GPU_TO_INSTANCES.put("5080", 8);
+        GPU_TO_INSTANCES.put("5090", 8);
+    }
 
     public CLIJxPool(int[] device_indices, int[] number_of_instances_per_clij) {
         int sum = 0;
         for (int v : number_of_instances_per_clij) {
             sum = sum + v;
         }
-        size = sum;
-        pool = new ArrayBlockingQueue<>(size, true);
-        allInstances = new CLIJx[size];
+        pool = new ArrayBlockingQueue<>(sum, true);
 
-        int count = 0;
         for (int i = 0; i < device_indices.length; i++) {
             for (int j = 0; j < number_of_instances_per_clij[i]; j++) {
                 CLIJx clijx = new CLIJx(new CLIJ(device_indices[i]));
                 pool.add(clijx);
-                allInstances[count] = clijx;
-                count++;
+                allInstances.add(clijx);
             }
         }
     }
 
-    public static CLIJxPool fromDeviceNames(String[] device_names, int[] number_of_instances_per_clij) {
-        List<Integer> index_list = new ArrayList<>();
-        List<Integer> instance_count_list = new ArrayList<>();
+    public static void excludeDevice(String pDeviceNameMustContain) {
+        if (INSTANCE!=null) {
+            System.err.println("In order to have an effect, the exclude method should be called BEFORE pool creation ");
+        }
+        EXCLUDED_GPU.add(pDeviceNameMustContain);
+    }
 
-        int index = 0;
-        for (String name : CLIJ.getAvailableDeviceNames()) {
+    public static int getNumberOfInstancePerDevice(String pDeviceNameMustContain) {
+        Optional<String> gpuType = GPU_TO_INSTANCES.keySet().stream().filter(pDeviceNameMustContain::contains).findFirst();
+        if (gpuType.isPresent()) {
+            return GPU_TO_INSTANCES.get(gpuType.get());
+        } else {
+            System.out.println(
+                    "Unrecognized CL device "+pDeviceNameMustContain+". A single context will be used for this device. Please use "
+                            +CLIJxPool.class.getName()+".setNumberOfInstancePerDevice or use the constructor if you need a different behaviour.");
+            return 1;
+        }
+    }
 
-            for (int i = 0; i < device_names.length; i++) {
-                String search_string = device_names[i];
-                if (name.contains(search_string)) {
-                    index_list.add(index);
-                    instance_count_list.add(number_of_instances_per_clij[i]);
+    public static void setNumberOfInstancePerDevice(String pDeviceNameMustContain, int nInstances) {
+        GPU_TO_INSTANCES.put(pDeviceNameMustContain, nInstances);
+    }
+
+    private static CLIJxPool createDefaultPool() {
+        List<String> allDevices = CLIJ.getAvailableDeviceNames();
+        if (allDevices.isEmpty()) {
+            throw new RuntimeException("No OpenCL compatible device has been found");
+        } else {
+            List<Integer> deviceIndex = new ArrayList<>();
+            List<Integer> instancesPerDevice = new ArrayList<>();
+            for (int iDevice = 0; iDevice < allDevices.size(); iDevice++) {
+                String deviceName = allDevices.get(iDevice);
+                boolean exclude = EXCLUDED_GPU.stream().anyMatch(deviceName::contains);
+                if (exclude) {
+                    System.out.println("Excluding device "+deviceName+" from CLIJx pool.");
+                    continue;
                 }
+                deviceIndex.add(iDevice);
+                instancesPerDevice.add(getNumberOfInstancePerDevice(deviceName));
             }
-            index++;
+
+            if (deviceIndex.isEmpty()) {
+                throw new RuntimeException("With GPU exclusions, no CLIJxPool could be created.");
+            }
+
+            assert deviceIndex.size() == instancesPerDevice.size();
+
+            // Stupid Java issue, convert List<Integer> to int[]
+            int[] deviceIndexArray = new int[deviceIndex.size()];
+            int[] instancePerDeviceArray = new int[instancesPerDevice.size()];
+            for (int i = 0; i< deviceIndex.size(); i++) {
+                deviceIndexArray[i] = deviceIndex.get(i);
+                instancePerDeviceArray[i] = instancesPerDevice.get(i);
+            }
+            return new CLIJxPool(deviceIndexArray, instancePerDeviceArray);
         }
-
-        int[] indices = new int[index_list.size()];
-        int[] instance_counts = new int[index_list.size()];
-
-        for (int i = 0; i < index_list.size(); i++) {
-            indices[i] = index_list.get(i);
-            instance_counts[i] = instance_count_list.get(i);
-        }
-
-        return new CLIJxPool(indices, instance_counts);
-    }
-
-    public static CLIJxPool fullPool() {
-        return CLIJxPool.fromDeviceNames(
-                new String[]{"Iris", "UHD", "gfx9", "mx", "1070", "2060", "2070", "2080"},
-                new int[]   {     1,     1,     1,     1,     1,      2,      2,      4}
-        );
     }
 
     public int size() {
-        return size;
+        return nInstances();
     }
 
-    public String log() {
+    public int nInstances() {
+        return allInstances.size();
+    }
+
+    public int nBusyInstances() {
+        return allInstances.size()-pool.size();
+    }
+
+    public int nIdleInstances() {
+        return pool.size();
+    }
+
+    public String getDetails() {
         StringBuilder text = new StringBuilder();
-        for (int i = 0; i < size; i ++ ) {
-            text.append(" * ").append(allInstances[i].getGPUName()).append("[").append(allInstances[i]).append("]").append("\n");
+        text.append("CLIJxPool [")
+                .append("size:").append(this.allInstances.size()).append(" idle:").append(this.pool.size()).append("]:\n");
+        for (CLIJx clijx : allInstances) {
+            text.append(pool.contains(clijx) ? "\t- [IDLE] " : "\t- [BUSY] ").append(clijx.getGPUName()).append(" \n")
+                    .append("\t\t- ").append(clijx).append("\n");
         }
+        if (isShuttingDown) {text.append("SHUTDOWN");}
         return text.toString();
     }
 
+    @Override
+    public String toString() {
+        return "CLIJxPool [size:" + this.allInstances.size() + " idle:" + this.pool.size() + "]" + ((isShuttingDown?"SHUTDOWN!":""));
+    }
+
     /**
-     * Select a CLIJx instance that's idle at the moment, mark it as busy and return it.
-     * @return a clijx instance
+     * Returns a CLIJx instance, immediately if one is available, otherwise waits until one becomes available
+     * The CLIJx instance should be recycled when the job is finished
+     * @return an available CLIJx instance
      */
     public CLIJx getIdleCLIJx() {
-        // Catch the exception inside to avoid breaking change. Is it a good idea ?
+        if (isShuttingDown) {
+            throw new RuntimeException("The pool is being shut down.");
+        }
+
         try {
             return pool.take();
         } catch (InterruptedException e) {
@@ -97,17 +180,82 @@ public class CLIJxPool {
     }
 
     /**
-     * Retrieve a CLIJx instance (which should be part of the pool already), empty its memory and mark it as idle.
-     * 
-     * @param clijx
+     * Recycle CLIJx instance, makes it available in the pool again
+     * (which should be part of the pool already), empty its memory and mark it as idle.
+     * @param clijx the clijx instance to add back into the pool of available clij instances
      */
-    public void setCLIJxIdle(CLIJx clijx, boolean clear) {
-        // clean up that instance before another thread can use it.
-        if (clear) clijx.clear();
-        pool.add(clijx);
+    public void setCLIJxIdle(CLIJx clijx) {
+        if (allInstances.contains(clijx)) {
+            pool.add(clijx);
+        } else {
+            System.err.println("CLIJx "+clijx.getGPUName()+", instance "+clijx+" is not part of the pool "+this);
+        }
     }
 
-    public void setCLIJxIdle(CLIJx clijx) {
-        setCLIJxIdle(clijx, true);
+    private volatile boolean isShuttingDown = false;
+
+    /**
+     * Orderly shutdown of the pool, closes all CLIJx context until no one is left in the pool
+     */
+    public void shutdown() {
+        synchronized (this) {
+            if (isShuttingDown) return; // It's already shutting down in another thread
+            isShuttingDown = true;
+        }
+
+        int nInstancesLeft = allInstances.size();
+
+        while (nInstancesLeft>0) {
+            try {
+                CLIJx clijx = pool.take();
+                clijx.close();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            nInstancesLeft--;
+        }
+
+        allInstances.clear();
+
+        if ((INSTANCE == this)) {
+            INSTANCE = null;
+        }
     }
+
+    public void forceShutdown() {
+        isShuttingDown = true;
+        pool.clear();
+        allInstances.forEach( clij ->
+            new Thread(clij::close).start()
+        );
+        allInstances.clear();
+
+        if ((INSTANCE == this)) {
+            INSTANCE = null;
+        }
+    }
+
+    // Static methods to set a default pool that can be re-used at the JVM scale
+    // Kept public in order to be able to set it easily
+    private static CLIJxPool INSTANCE = null;
+
+    static synchronized CLIJxPool getInstance() {
+        if (INSTANCE != null) {
+            if (INSTANCE.isShuttingDown) {
+                System.err.println("CLIJxPool instance is shutting down!");
+            }
+            return INSTANCE;
+        }
+        // Pool not created
+        INSTANCE = createDefaultPool();
+        return INSTANCE;
+    }
+
+    static synchronized void setInstance(CLIJxPool pool) {
+        if (INSTANCE!=null) {
+            System.err.println("Pre-existing CLIJxPool instance overridden!");
+        }
+        INSTANCE = pool;
+    }
+
 }

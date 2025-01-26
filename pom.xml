@@ -44,8 +44,11 @@
 	</developers>
 	<contributors>
 		<contributor>
-			<name>none</name>
-			<properties><id>none</id></properties>
+			<name>Nicolas Chiaruttini</name>
+			<properties><id>nicokiaru</id></properties>
+			<roles>
+				<role>maintainer</role>
+			</roles>
 		</contributor>
 	</contributors>
 

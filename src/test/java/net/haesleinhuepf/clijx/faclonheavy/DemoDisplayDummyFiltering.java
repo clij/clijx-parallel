@@ -57,9 +57,9 @@ import static net.imglib2.type.PrimitiveType.LONG;
 import static net.imglib2.type.PrimitiveType.SHORT;
 
 /**
- * Demos how to process an image with a GPU Pool
+ * Demos how to display an image live processed with a GPU Pool
  */
-public class DemoDummyFiltering {
+public class DemoDisplayDummyFiltering {
 
     public static void main(String[] args) throws MalformedURLException {
 
@@ -82,14 +82,8 @@ public class DemoDummyFiltering {
 
         final IntervalView<FloatType> new_img = Views.interval(transformed, new long[]{0,0,0}, new long[]{imp.getWidth() * scale_factor, imp.getHeight() * scale_factor, imp.getNSlices() * scale_factor});
 
-        // Replace with devices your computer has
-        CLIJxPool pool = //CLIJxPool.fullPool();
-            CLIJxPool.fromDeviceNames(
-                    new String[]{"A500", "Iris"},
-                    new int[]   {     1,     1}
-            );
-
-        System.out.println("GPU pool size = "+pool.size);
+        CLIJxPool pool = CLIJxPool.getInstance();
+        System.out.println("GPU pool : "+pool);
 
         int margin = 20;
         int tile_size = 256;
@@ -97,7 +91,7 @@ public class DemoDummyFiltering {
         final CLIJxFilterOp<FloatType, FloatType> clijxFilter =
                 new CLIJxFilterOp<>(Views.extendMirrorSingle(new_img), pool, DummyFilter.class, margin, margin, margin);
 
-        // make a result image lazily
+        // Make a result image lazily
         final RandomAccessibleInterval<FloatType> filtered = Lazy.generate(
                 new_img,
                 new int[] {tile_size, tile_size, tile_size},
@@ -109,7 +103,7 @@ public class DemoDummyFiltering {
                 BdvFunctions.show(
                         VolatileViews.wrapAsVolatile(
                                 filtered,
-                                new SharedQueue(pool.size*2,1)), // You need to fetch with multiple cpu thread - otherwise GPU will be never be working in parallel
+                                new SharedQueue(pool.size()*2,1)), // You need to fetch with multiple cpu thread - otherwise GPU will be never be working in parallel
                         "Processed");
 
         BdvStackSource<FloatType> original =
