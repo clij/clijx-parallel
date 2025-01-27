@@ -1,4 +1,4 @@
-package net.haesleinhuepf.clijx.faclonheavy;
+package net.haesleinhuepf.clijx.parallel;
 
 import net.haesleinhuepf.clij.CLIJ;
 import org.junit.Assert;

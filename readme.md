@@ -1,5 +1,5 @@
-# CLIJx faCLon heavy
-The faCLon heavy project brings multi-GPU support into CLIJ. 
+# CLIJx Parallel
+The CLIJx parallel project brings multi-GPU support into CLIJ. 
 It is used to define a pool of CLIJx instances spanning one or several GPUs (that are part of the same JVM - i.e. it's not a tool to send jobs to a computing cluster).
 
 It allows notably to process large images tile-by-tile.It is based on [imglib2](https://github.com/imglib) and [CLIJ](https://clij.github.io).
@@ -9,7 +9,7 @@ Thus, in order to use it right now, you need Java programming skills.
 Work in progress.
 
 # Usage
-In order to parallelize your processing on GPUs, you need to define a [CLIJxPool](https://github.com/clij/clijx-faclon-heavy/blob/master/src/main/java/net/haesleinhuepf/clijx/faclonheavy/CLIJxPool.java).
+In order to parallelize your processing on GPUs, you need to define a [CLIJxPool](https://github.com/clij/clijx-parallel/blob/master/src/main/java/net/haesleinhuepf/clijx/parallel/CLIJxPool.java).
 The easiest is to call `CLIJxPool.getInstance()` which will create a pool of 
 `CLIJx` instances that will use all CLIJ compatible devices available and will even split big GPU cards into several `CLIJx` instances.
 
@@ -24,9 +24,9 @@ The pool can be used directly in a multithreaded workflow where each CLIJx insta
 calling `pool.getIdleCLIJx()` and returned back to the pool by calling `pool.setCLIJxIdle(clijx)`.
 
 If the workflow consists of processing an image tile by tile, you can directly use the classes present in this repository:
-you need to define your workflow as class implementing [TileProcessor](https://github.com/clij/clijx-faclon-heavy/blob/master/src/main/java/net/haesleinhuepf/clijx/faclonheavy/TileProcessor.java). 
-To keep things simple, extend your workflow from [AbstractTileProcessor](https://github.com/clij/clijx-faclon-heavy/blob/master/src/main/java/net/haesleinhuepf/clijx/faclonheavy/AbstractTileProcessor.java).
-An example is provided as [DummyFilter](https://github.com/clij/clijx-faclon-heavy/blob/master/src/main/java/net/haesleinhuepf/clijx/faclonheavy/implementations/DummyFilter.java), which basically is just a function:
+you need to define your workflow as class implementing [TileProcessor](https://github.com/clij/clijx-parallel/blob/master/src/main/java/net/haesleinhuepf/clijx/parallel/TileProcessor.java). 
+To keep things simple, extend your workflow from [AbstractTileProcessor](https://github.com/clij/clijx-parallel/blob/master/src/main/java/net/haesleinhuepf/clijx/parallel/AbstractTileProcessor.java).
+An example is provided as [DummyFilter](https://github.com/clij/clijx-parallel/blob/master/src/main/java/net/haesleinhuepf/clijx/parallel/implementations/DummyFilter.java), which basically is just a function:
 ```
 @Override
 public void accept(ClearCLBuffer input, ClearCLBuffer output) {
@@ -119,7 +119,7 @@ Furthermore, you can see that different GPUs need more/less time for computing t
 Last but not least, the processed image is larger than the requested tile-size because of the define margin around every tile.
 For optimal performance, keep the tiles as large as possible and minimize the margin.
 
-A complete example is given in [this java file](https://github.com/clij/clijx-faclon-heavy/blob/master/src/test/java/net/haesleinhuepf/clijx/faclonheavy/Tutorial.java)
+A complete example is given in [this java file](https://github.com/clij/clijx-parallel/blob/master/src/test/java/net/haesleinhuepf/clijx/parallel/Tutorial.java)
 
 ## Acknowledgements
 This project was supported by the Deutsche Forschungsgemeinschaft under Germany’s Excellence Strategy – EXC2068 - Cluster of Excellence "Physics of Life" of TU Dresden.

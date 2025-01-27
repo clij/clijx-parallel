@@ -1,4 +1,4 @@
-package net.haesleinhuepf.clijx.faclonheavy;
+package net.haesleinhuepf.clijx.parallel;
 
 import bdv.util.BdvFunctions;
 import bdv.util.BdvOptions;
@@ -7,7 +7,7 @@ import bdv.util.volatiles.SharedQueue;
 import bdv.util.volatiles.VolatileViews;
 import ij.IJ;
 import ij.ImagePlus;
-import net.haesleinhuepf.clijx.faclonheavy.implementations.DummyFilter;
+import net.haesleinhuepf.clijx.parallel.implementations.DummyFilter;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealRandomAccessible;

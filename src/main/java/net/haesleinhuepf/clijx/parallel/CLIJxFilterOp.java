@@ -1,4 +1,4 @@
-package net.haesleinhuepf.clijx.faclonheavy;
+package net.haesleinhuepf.clijx.parallel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
