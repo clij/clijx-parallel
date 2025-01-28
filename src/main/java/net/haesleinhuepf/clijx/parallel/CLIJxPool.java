@@ -111,7 +111,7 @@ public class CLIJxPool {
      * Method 2: the CLIJxPool construction, and if needed, {@link CLIJxPool#setInstance(CLIJxPool)} will set the
      * static CLIJxPool instance which is returned from this method
      */
-    static synchronized CLIJxPool getInstance() {
+    public static synchronized CLIJxPool getInstance() {
         if (INSTANCE != null) {
             if (INSTANCE.isShuttingDown) {
                 System.err.println("CLIJxPool instance is shutting down!");
@@ -127,7 +127,7 @@ public class CLIJxPool {
      * see {@link CLIJxPool#getInstance()}
      * @param pool is the CLIJxPool instance that will be returned by calls of {@link CLIJxPool#getInstance()}
      */
-    static synchronized void setInstance(CLIJxPool pool) {
+    public static synchronized void setInstance(CLIJxPool pool) {
         if (INSTANCE!=null) {
             System.err.println("Pre-existing CLIJxPool instance overridden!");
         }
