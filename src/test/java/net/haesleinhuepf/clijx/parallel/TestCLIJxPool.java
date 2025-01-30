@@ -6,26 +6,17 @@ import org.junit.Test;
 import org.junit.Assert;
 
 /**
- * These tests are really configuration dependent, if you have an idea in order to make them clean, please contribute!
- * <p>
- * While waiting for a good method, you can set the static fields at the beginning of the tests in order to adapt
- * the configuration and test on your own device.
+ * These tests are ignored if no OpenCL device is present
  */
 public class TestCLIJxPool {
 
-    // Change this flag to ignore or test all tests
-    public static boolean IGNORE_TESTS = false;
-
-    @Test
-    public void testConfig() {
-        if (IGNORE_TESTS) return;
-        int nCLIJDevices = CLIJ.getAvailableDeviceNames().size();
-        Assert.assertTrue("You do not have any OpenCL compatible devices.", nCLIJDevices>0);
+    public boolean ignoreTests() {
+        return CLIJ.getAvailableDeviceNames().isEmpty();
     }
 
     @Test
     public void testGetSetIdleCLIJx() {
-        if (IGNORE_TESTS) return;
+        if (ignoreTests()) return;
 
         CLIJxPool INSTANCE = CLIJxPool.getInstance();
 
@@ -56,7 +47,7 @@ public class TestCLIJxPool {
 
     @Test
     public void testShutdown() {
-        if (IGNORE_TESTS) return;
+        if (ignoreTests()) return;
         CLIJxPool INSTANCE = CLIJxPool.getInstance();
 
         INSTANCE.shutdown();
@@ -68,7 +59,7 @@ public class TestCLIJxPool {
 
     @Test
     public void testForceShutdown() {
-        if (IGNORE_TESTS) return;
+        if (ignoreTests()) return;
         CLIJxPool INSTANCE = CLIJxPool.getInstance();
 
         // Gets a CLIJx instance
@@ -84,9 +75,9 @@ public class TestCLIJxPool {
 
     @Test
     public void testSetInstance() {
-        if (IGNORE_TESTS) return;
+        if (ignoreTests()) return;
         CLIJxPool pool1 = CLIJxPool.getInstance();
-        CLIJxPool pool2 = new CLIJxPool(new int[]{0}, new int[]{1});
+        CLIJxPool pool2 = new CLIJxPool(new int[]{0}, new int[]{1}); // Device 0 with one thread
 
         Assert.assertEquals("Unexpected default pool instance", pool1, CLIJxPool.getInstance());
 
@@ -95,6 +86,18 @@ public class TestCLIJxPool {
 
         pool1.shutdown();
         pool2.shutdown();
+    }
+
+    @Test
+    public void testExcludeDevice() {
+        if (ignoreTests()) return;
+        CLIJxPool pool = CLIJxPool.getInstance();
+        int nInstances = pool.nInstances();
+        pool.shutdown();
+        CLIJxPool.excludeDevice(CLIJ.getAvailableDeviceNames().get(0));
+        pool = CLIJxPool.getInstance();
+        Assert.assertTrue("excludeDevice is not excluding any device", pool.nInstances()<nInstances);
+        pool.shutdown();
     }
 
 }
