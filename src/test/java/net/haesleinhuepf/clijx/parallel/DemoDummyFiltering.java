@@ -62,7 +62,7 @@ import static net.imglib2.type.PrimitiveType.SHORT;
 /**
  * Demos how to display an image live processed with a GPU Pool
  */
-public class DemoDisplayDummyFiltering {
+public class DemoDummyFiltering {
 
     public static void main(String[] args) throws MalformedURLException {
 

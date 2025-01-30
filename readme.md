@@ -119,7 +119,7 @@ Furthermore, you can see that different GPUs need more/less time for computing t
 Last but not least, the processed image is larger than the requested tile-size because of the define margin around every tile.
 For optimal performance, keep the tiles as large as possible and minimize the margin.
 
-A complete example is given in [this java file](https://github.com/clij/clijx-parallel/blob/master/src/test/java/net/haesleinhuepf/clijx/parallel/Tutorial.java)
+A complete example is given in [this java file](https://github.com/clij/clijx-parallel/blob/master/src/test/java/net/haesleinhuepf/clijx/parallel/DemoDummyFiltering.java)
 
 ## Acknowledgements
 This project was supported by the Deutsche Forschungsgemeinschaft under Germany’s Excellence Strategy – EXC2068 - Cluster of Excellence "Physics of Life" of TU Dresden.
