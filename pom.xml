@@ -60,15 +60,15 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/clij/clijx</connection>
-        <developerConnection>scm:git:git@github.com/clij/clijx</developerConnection>
+		<connection>scm:git:git://github.com/clij/clijx-parallel</connection>
+        <developerConnection>scm:git:git@github.com/clij/clijx-parallel</developerConnection>
         <tag>HEAD</tag>
-		<url>https://github.com/clij/clijx</url>
+		<url>https://github.com/clij/clijx-parallel</url>
 	</scm>
 
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/clij/clijx/issues</url>
+		<url>https://github.com/clij/clijx-parallel/issues</url>
 	</issueManagement>
 
 	<ciManagement>
