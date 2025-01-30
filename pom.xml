@@ -65,10 +65,12 @@
         <tag>HEAD</tag>
 		<url>https://github.com/clij/clijx</url>
 	</scm>
+
 	<issueManagement>
 		<system>GitHub Issues</system>
 		<url>https://github.com/clij/clijx/issues</url>
 	</issueManagement>
+
 	<ciManagement>
 		<system>None</system>
 	</ciManagement>
@@ -79,14 +81,7 @@
 		<license.copyrightOwners>Robert Haase, MPI CBG</license.copyrightOwners>
 		<!--scijava.app.directory>C:/programs/fiji-win64/Fiji.app/</scijava.app.directory-->
 		<!--<scijava.app.directory>/home/rhaase/programs/fiji/Fiji.app/</scijava.app.directory>-->
-		<enforcer.skip>true</enforcer.skip>
-
-		<!-- TODO remove when pom-scijava-base is updated -->
-		<scijava.jvm.version>8</scijava.jvm.version>
-		<scijava.release.version>8</scijava.release.version>
-		<scijava.jvm.build.version>[1.8.0-101,)</scijava.jvm.build.version>
-		<maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
-
+		<!-- enforcer.skip>true</enforcer.skip -->
 	</properties>
 
 	<dependencies>
@@ -136,24 +131,4 @@
 		</repository>
 	</repositories>
 
-	<distributionManagement>
-		<repository>
-			<id>bintray-haesleinhuepf-snapshots</id>
-			<name>bintray-snapshots</name>
-			<url>https://api.bintray.com/maven/haesleinhuepf/clij/clijx_/;publish=1</url>
-		</repository>
-	</distributionManagement>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.4.1</version>
-				<configuration>
-					<argLine>-Xmx2G</argLine>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>
