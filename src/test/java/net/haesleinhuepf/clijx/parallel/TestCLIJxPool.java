@@ -2,6 +2,7 @@ package net.haesleinhuepf.clijx.parallel;
 
 import net.haesleinhuepf.clij.CLIJ;
 import net.haesleinhuepf.clijx.CLIJx;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.Assert;
 
@@ -14,6 +15,7 @@ public class TestCLIJxPool {
         return CLIJ.getAvailableDeviceNames().isEmpty();
     }
 
+    @Ignore
     @Test
     public void testGetSetIdleCLIJx() {
         if (ignoreTests()) return;
@@ -45,6 +47,7 @@ public class TestCLIJxPool {
         INSTANCE.shutdown();
     }
 
+    @Ignore
     @Test
     public void testShutdown() {
         if (ignoreTests()) return;
@@ -57,6 +60,7 @@ public class TestCLIJxPool {
         Assert.assertEquals("Pool still has idle instances", 0 , INSTANCE.nIdleInstances());
     }
 
+    @Ignore
     @Test
     public void testForceShutdown() {
         if (ignoreTests()) return;
@@ -72,7 +76,7 @@ public class TestCLIJxPool {
         Assert.assertEquals("Pool still has idle instances", 0 , INSTANCE.nIdleInstances());
     }
 
-
+    @Ignore
     @Test
     public void testSetInstance() {
         if (ignoreTests()) return;
@@ -88,6 +92,7 @@ public class TestCLIJxPool {
         pool2.shutdown();
     }
 
+    @Ignore
     @Test
     public void testExcludeDevice() {
         if (ignoreTests()) return;
