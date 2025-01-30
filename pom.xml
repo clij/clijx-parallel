@@ -6,9 +6,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>net.haesleinhuepf</groupId>
-		<artifactId>clij-parent-pom</artifactId>
-		<version>2.2.0.14</version>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>40.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -90,32 +90,39 @@
 	</properties>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>net.haesleinhuepf</groupId>
 			<artifactId>clij_</artifactId>
      	</dependency>
+
 		<dependency>
 			<groupId>net.haesleinhuepf</groupId>
 			<artifactId>clij-clearcl</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>net.haesleinhuepf</groupId>
 			<artifactId>clij2_</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>net.haesleinhuepf</groupId>
 			<artifactId>clijx_</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>bigdataviewer-vistools</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
 	<repositories>

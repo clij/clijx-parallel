@@ -1,9 +1,9 @@
 package net.haesleinhuepf.clijx.parallel;
 
+import bdv.cache.SharedQueue;
 import bdv.util.BdvFunctions;
 import bdv.util.BdvOptions;
 import bdv.util.BdvStackSource;
-import bdv.util.volatiles.SharedQueue;
 import bdv.util.volatiles.VolatileViews;
 import ij.IJ;
 import ij.ImagePlus;
@@ -50,7 +50,6 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.StreamSupport;
 
 import static net.imglib2.type.PrimitiveType.BYTE;
 import static net.imglib2.type.PrimitiveType.DOUBLE;
@@ -84,6 +83,11 @@ public class DemoDummyFiltering {
         AffineRandomAccessible<FloatType, AffineGet> transformed = RealViews.affine(field, at);
 
         final IntervalView<FloatType> new_img = Views.interval(transformed, new long[]{0,0,0}, new long[]{(long) (imp.getWidth() * scale_factor), (long) (imp.getHeight() * scale_factor), (long) (imp.getNSlices() * scale_factor)});
+
+        // If you want to remove a device from the pool:
+        // CLIJxPool.excludeDevice("Intel");
+        // If you want to set how a device will be split in several threads:
+        // CLIJxPool.setNumberOfInstancePerDevice("RTX", 2);
 
         CLIJxPool pool = CLIJxPool.getInstance();
         System.out.println("GPU pool : "+pool);
@@ -123,14 +127,19 @@ public class DemoDummyFiltering {
             original.getConverterSetups().get(0).setDisplayRange(0,100);
             original.getConverterSetups().get(0).setColor(new ARGBType(ARGBType.rgba(250,0,0,255)));
 
-//            original.getBdvHandle().getSplitPanel().setCollapsed(false); // Opens split panel for bdv newbies - NPE because bdv vis tools is too old
+            original.getBdvHandle().getSplitPanel().setCollapsed(false); // Opens split panel for bdv newbies - NPE because bdv vis tools is too old
 
         } else {
 
             Instant start = Instant.now();
 
-             StreamSupport.stream( filtered.getCells().spliterator(), true )
-                    .forEach(Cell::getData); // This doesn't really trigger parallelism - I think it's because imglib2 version is not up to date.
+            filtered.getCells()
+                    .parallelStream()// Parallel magic, comment to go serial
+                    .forEach(Cell::getData);
+
+            // Nico: on my laptop with a A500 and an Iris Xe card:
+            //    - parallel: 34s
+            //    - serial: 72s
 
             Duration processingDuration = Duration.between(start, Instant.now());
             System.out.println("Filtering duration = "+processingDuration.toMillis()+" ms");
