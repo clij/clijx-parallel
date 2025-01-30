@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/clij/clijx-parallel/actions/workflows/build.yml/badge.svg)](https://github.com/clij/clijx-parallel/actions/workflows/build.yml)
+
 # CLIJx Parallel
 The CLIJx parallel project brings multi-GPU support into CLIJ. 
 It is used to define a pool of CLIJx instances spanning one or several GPUs (that are part of the same JVM - i.e. it's not a tool to send jobs to a computing cluster).
