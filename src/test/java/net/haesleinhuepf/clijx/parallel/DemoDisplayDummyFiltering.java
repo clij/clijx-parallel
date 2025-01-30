@@ -45,9 +45,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
 import static net.imglib2.type.PrimitiveType.BYTE;
 import static net.imglib2.type.PrimitiveType.DOUBLE;
@@ -65,7 +68,7 @@ public class DemoDisplayDummyFiltering {
 
         File source_file = DatasetHelper.getDataset("https://zenodo.org/records/5101351/files/Raw_large.tif");
 
-        long scale_factor = 2;
+        double scale_factor = 1.5;
 
         ImagePlus imp = IJ.openImage(source_file.getAbsolutePath());
         // convert to float to prevent issues in LazyTutorial3
@@ -80,7 +83,7 @@ public class DemoDisplayDummyFiltering {
 
         AffineRandomAccessible<FloatType, AffineGet> transformed = RealViews.affine(field, at);
 
-        final IntervalView<FloatType> new_img = Views.interval(transformed, new long[]{0,0,0}, new long[]{imp.getWidth() * scale_factor, imp.getHeight() * scale_factor, imp.getNSlices() * scale_factor});
+        final IntervalView<FloatType> new_img = Views.interval(transformed, new long[]{0,0,0}, new long[]{(long) (imp.getWidth() * scale_factor), (long) (imp.getHeight() * scale_factor), (long) (imp.getNSlices() * scale_factor)});
 
         CLIJxPool pool = CLIJxPool.getInstance();
         System.out.println("GPU pool : "+pool);
@@ -92,29 +95,47 @@ public class DemoDisplayDummyFiltering {
                 new CLIJxFilterOp<>(Views.extendMirrorSingle(new_img), pool, DummyFilter.class, margin, margin, margin);
 
         // Make a result image lazily
-        final RandomAccessibleInterval<FloatType> filtered = Lazy.generate(
+        CachedCellImg<FloatType, ?> filtered = Lazy.generate(
                 new_img,
-                new int[] {tile_size, tile_size, tile_size},
+                new int[]{tile_size, tile_size, tile_size},
                 new FloatType(),
                 AccessFlags.setOf(AccessFlags.VOLATILE),
                 clijxFilter);
 
-        BdvStackSource<Volatile<FloatType>> gpuProcessed =
-                BdvFunctions.show(
-                        VolatileViews.wrapAsVolatile(
-                                filtered,
-                                new SharedQueue(pool.size()*2,1)), // You need to fetch with multiple cpu thread - otherwise GPU will be never be working in parallel
-                        "Processed");
 
-        BdvStackSource<FloatType> original =
-                BdvFunctions.show(
-                        new_img,
-                        "Original",
-                        BdvOptions.options().addTo(gpuProcessed.getBdvHandle()));
+        boolean interactive = false;
 
-        gpuProcessed.getConverterSetups().get(0).setDisplayRange(0,2);
-        original.getConverterSetups().get(0).setDisplayRange(0,100);
-        original.getConverterSetups().get(0).setColor(new ARGBType(ARGBType.rgba(250,0,0,255)));
+        if (interactive) {
+            BdvStackSource<Volatile<FloatType>> gpuProcessed =
+                    BdvFunctions.show(
+                            VolatileViews.wrapAsVolatile(
+                                    filtered,
+                                    new SharedQueue(pool.size()*2,1)), // You need to fetch with multiple cpu thread - otherwise GPU will be never be working in parallel
+                            "Processed");
+
+            BdvStackSource<FloatType> original =
+                    BdvFunctions.show(
+                            new_img,
+                            "Original",
+                            BdvOptions.options().addTo(gpuProcessed.getBdvHandle()));
+
+            gpuProcessed.getConverterSetups().get(0).setDisplayRange(0,2);
+            original.getConverterSetups().get(0).setDisplayRange(0,100);
+            original.getConverterSetups().get(0).setColor(new ARGBType(ARGBType.rgba(250,0,0,255)));
+
+//            original.getBdvHandle().getSplitPanel().setCollapsed(false); // Opens split panel for bdv newbies - NPE because bdv vis tools is too old
+
+        } else {
+
+            Instant start = Instant.now();
+
+             StreamSupport.stream( filtered.getCells().spliterator(), true )
+                    .forEach(Cell::getData); // This doesn't really trigger parallelism - I think it's because imglib2 version is not up to date.
+
+            Duration processingDuration = Duration.between(start, Instant.now());
+            System.out.println("Filtering duration = "+processingDuration.toMillis()+" ms");
+            ImageJFunctions.show(filtered,"filtered");
+        }
 
     }
 
