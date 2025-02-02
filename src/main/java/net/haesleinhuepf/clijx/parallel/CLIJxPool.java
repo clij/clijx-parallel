@@ -61,16 +61,19 @@ public class CLIJxPool {
         GPU_TO_INSTANCES.put("2060", 2);
         GPU_TO_INSTANCES.put("2070", 2);
         GPU_TO_INSTANCES.put("2080", 4);
+        GPU_TO_INSTANCES.put("2090", 4);
 
         GPU_TO_INSTANCES.put("3060", 2);
         GPU_TO_INSTANCES.put("3070", 2);
         GPU_TO_INSTANCES.put("3080", 4);
+        GPU_TO_INSTANCES.put("3090", 4);
 
         GPU_TO_INSTANCES.put("4060", 4);
         GPU_TO_INSTANCES.put("4070", 4);
         GPU_TO_INSTANCES.put("4080", 8);
         GPU_TO_INSTANCES.put("4090", 8);
 
+        GPU_TO_INSTANCES.put("5060", 4);
         GPU_TO_INSTANCES.put("5070", 4);
         GPU_TO_INSTANCES.put("5080", 8);
         GPU_TO_INSTANCES.put("5090", 8);
@@ -207,6 +210,27 @@ public class CLIJxPool {
             }
             return new CLIJxPool(deviceIndexArray, instancePerDeviceArray);
         }
+    }
+
+    /**
+     * @return true if a default static pool instance has already been created, false otherwise
+     */
+    public static boolean isIntanceSet() {
+        return INSTANCE != null;
+    }
+
+    /**
+     * Resets the list of excluded devices for the default static pool
+     */
+    public static void clearExcludedDevices() {
+        EXCLUDED_GPU.clear();
+    }
+
+    /**
+     * Resets how devices are split for the default static pool
+     */
+    public static void clearDevicesSplit() {
+        GPU_TO_INSTANCES.clear();
     }
 
     /**
