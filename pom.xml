@@ -11,7 +11,7 @@
 
 	<groupId>net.haesleinhuepf</groupId>
 	<artifactId>clijx-parallel_</artifactId>
-	<version>0.30.1.18-SNAPSHOT</version>
+	<version>0.30.1.18</version>
 
 	<name>clijx-parallel_</name>
 	<description>Multi-GPU support for processing big data</description>
@@ -59,7 +59,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/clij/clijx-parallel</connection>
         <developerConnection>scm:git:git@github.com:clij/clijx-parallel</developerConnection>
-        <tag>HEAD</tag>
+        <tag>clijx-parallel_-0.30.1.18</tag>
 		<url>https://github.com/clij/clijx-parallel_</url>
 	</scm>
 
