@@ -58,7 +58,7 @@
 
 	<scm>
 		<connection>scm:git:git://github.com/clij/clijx-parallel_</connection>
-        <developerConnection>scm:git:git@github.com/clij/clijx-parallel_</developerConnection>
+        <developerConnection>scm:git:git@github.com:clij/clijx-parallel_</developerConnection>
         <tag>HEAD</tag>
 		<url>https://github.com/clij/clijx-parallel_</url>
 	</scm>
