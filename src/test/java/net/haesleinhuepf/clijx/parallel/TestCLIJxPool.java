@@ -92,17 +92,4 @@ public class TestCLIJxPool {
         pool2.shutdown();
     }
 
-    @Ignore
-    @Test
-    public void testExcludeDevice() {
-        if (ignoreTests()) return;
-        CLIJxPool pool = CLIJxPool.getInstance();
-        int nInstances = pool.nInstances();
-        pool.shutdown();
-        CLIJxPool.excludeDevice(CLIJ.getAvailableDeviceNames().get(0));
-        pool = CLIJxPool.getInstance();
-        Assert.assertTrue("excludeDevice is not excluding any device", pool.nInstances()<nInstances);
-        pool.shutdown();
-    }
-
 }
