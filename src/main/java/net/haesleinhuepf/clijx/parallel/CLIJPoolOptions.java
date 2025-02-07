@@ -40,6 +40,10 @@ public class CLIJPoolOptions extends DynamicCommand {
         return parseDeviceThreads(prefSpecs)[1];
     }
 
+    public static void set(String specs) {
+        ij.Prefs.set(KEY, specs);
+    }
+
     @Override
     public void run() {
 

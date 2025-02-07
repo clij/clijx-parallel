@@ -84,10 +84,8 @@ public class DemoDummyFiltering {
 
         final IntervalView<FloatType> new_img = Views.interval(transformed, new long[]{0,0,0}, new long[]{(long) (imp.getWidth() * scale_factor), (long) (imp.getHeight() * scale_factor), (long) (imp.getNSlices() * scale_factor)});
 
-        // If you want to remove a device from the pool:
-        // CLIJxPool.excludeDevice("Intel");
-        // If you want to set how a device will be split in several threads:
-        // CLIJxPool.setNumberOfInstancePerDevice("RTX", 2);
+        // If you want to specify how the pool is created:
+        // CLIJPoolOptions.set("0:1, 1:1"); // Device 0: 1 thread, Device 1: 1 thread
 
         CLIJxPool pool = CLIJxPool.getInstance();
         System.out.println("GPU pool : "+pool);
