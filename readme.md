@@ -8,19 +8,21 @@ It allows notably to process large images tile-by-tile.It is based on [imglib2](
 It is the back-end for a user-interface to be built in the future. 
 Thus, in order to use it right now, you need Java programming skills.
 
-Work in progress.
-
 # Usage
 In order to parallelize your processing on GPUs, you need to define a [CLIJxPool](https://github.com/clij/clijx-parallel/blob/master/src/main/java/net/haesleinhuepf/clijx/parallel/CLIJxPool.java).
 The easiest is to call `CLIJxPool.getInstance()` which will create a pool of 
-`CLIJx` instances that will use all CLIJ compatible devices available and will even split big GPU cards into several `CLIJx` instances.
+`CLIJx` instances that will the first CLIJ compatible device available.
+
+In order to use several devices, and potentially use several contexts per device, you can either:
+
+* run `CLIJ Pool Options` in Fiji and specify, for instance, 2 contexts for the device 0 and 4 contexts for the device 1 with `0:2, 1:4`
+* set programmatically which devices are used and how they are split with `net.haesleinhuepf.clijx.parallel.CLIJPoolOptions.set("0:2, 1:4")`
 
 
 Indeed, while Intel integrated GPUs typically hold a single OpenCL context, dedicated AMD and NVidia cards
 allow processing in multiple contexts at a time. 
 
-The default GPU pool created can be modified (see Javadoc), if some GPUs are unable to process particular jobs due to 
-different hardware or memory issues if the device is split in too many contexts.
+Pool options can be used in particular to exclude some devices from the pool which are unsuitable for certain types of tasks (no image support on apple CPU chipsets for instance).
 
 The pool can be used directly in a multithreaded workflow where each CLIJx instance has to be acquired from the pool by 
 calling `pool.getIdleCLIJx()` and returned back to the pool by calling `pool.setCLIJxIdle(clijx)`.
