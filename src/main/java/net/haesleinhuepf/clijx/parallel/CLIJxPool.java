@@ -11,7 +11,7 @@ import java.util.concurrent.ArrayBlockingQueue;
  * The CLIJxPool holds instances of CLIJx allowing to execute operations on multiple OpenCL devices / GPUs at a time.
  * <p>
  * A static pool can be acquired with {@link CLIJxPool#getInstance()}.
- * <p>>
+ * <p>
  * It is also possible to directly create a pool with the constructor {@link CLIJxPool#CLIJxPool(int[], int[])}
  * Such an instance can be set as the static shared pool by calling {@link CLIJxPool#setInstance(CLIJxPool)}.
  * <p>
