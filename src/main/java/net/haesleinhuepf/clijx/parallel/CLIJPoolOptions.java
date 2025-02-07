@@ -26,9 +26,9 @@ public class CLIJPoolOptions extends DynamicCommand {
     String info_for_user;
 
     @Parameter(label = "Pool Configuration", description = "device_idx:n_threads, device_idx:n_threads ...")
-    String poolSpecification = "0:1";
+    String pool_specification = "0:1";
 
-    final public static String KEY = CLIJPoolOptions.class.getName()+".poolSpecification";
+    final public static String KEY = CLIJPoolOptions.class.getName()+".pool_specification";
 
     public static int[] getDevices() {
         String prefSpecs = ij.Prefs.get(KEY,"0:1");
@@ -56,7 +56,7 @@ public class CLIJPoolOptions extends DynamicCommand {
         }
 
         // First - checks validity of pool specifications
-        int[][] specs = parseDeviceThreads(poolSpecification); // Write errors if some exist, but does not create the pool
+        int[][] specs = parseDeviceThreads(pool_specification); // Write errors if some exist, but does not create the pool
         int[] devices = specs[0];
         int nDevices = CLIJ.getAvailableDeviceNames().size();
         for (int iDevice : devices) {
@@ -67,7 +67,7 @@ public class CLIJPoolOptions extends DynamicCommand {
         }
 
         // Second - store specification in prefs
-        ij.Prefs.set(CLIJPoolOptions.class.getName()+".poolSpecification", poolSpecification);
+        ij.Prefs.set(CLIJPoolOptions.class.getName()+".poolSpecification", pool_specification);
 
         // Third - creates pool, and take care of closing the previous one
         if (CLIJxPool.isIntanceSet()) {
