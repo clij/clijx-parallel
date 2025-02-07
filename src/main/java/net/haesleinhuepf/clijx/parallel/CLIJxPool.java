@@ -136,7 +136,7 @@ public class CLIJxPool {
                 .append("size:").append(this.allInstances.size()).append(" idle:").append(this.idleInstances.size()).append("]:\n");
         for (CLIJx clijx : allInstances) {
             text.append(idleInstances.contains(clijx) ? "\t- [IDLE] " : "\t- [BUSY] ").append(clijx.getGPUName()).append(" \n")
-                    .append("\t\t- Img Suport [").append(clijx.hasImageSupport()).append("]  OpenCL [v").append(clijx.getOpenCLVersion()).append("]\n")
+                    .append("\t\t- Img Support [").append(clijx.hasImageSupport()).append("]  OpenCL [v").append(clijx.getOpenCLVersion()).append("]\n")
                     .append("\t\t- ").append(clijx).append("\n");
         }
         if (isShuttingDown) {text.append("SHUTDOWN");}
