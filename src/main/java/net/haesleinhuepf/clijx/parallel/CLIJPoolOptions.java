@@ -25,7 +25,7 @@ public class CLIJPoolOptions extends DynamicCommand {
     @Parameter(visibility = ItemVisibility.MESSAGE, persist = false)
     String info_for_user;
 
-    @Parameter(label = "Devices To Exclude (comma separated)")
+    @Parameter(label = "Pool Configuration", description = "device_idx:n_threads, device_idx:n_threads ...")
     String poolSpecification = "0:1";
 
     final public static String KEY = CLIJPoolOptions.class.getName()+".poolSpecification";
