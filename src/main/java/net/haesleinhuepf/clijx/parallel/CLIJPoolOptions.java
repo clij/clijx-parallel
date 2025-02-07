@@ -67,7 +67,7 @@ public class CLIJPoolOptions extends DynamicCommand {
         }
 
         // Second - store specification in prefs
-        ij.Prefs.set(CLIJPoolOptions.class.getName()+".poolSpecification", pool_specification);
+        ij.Prefs.set(CLIJPoolOptions.KEY, pool_specification);
 
         // Third - creates pool, and take care of closing the previous one
         if (CLIJxPool.isIntanceSet()) {
